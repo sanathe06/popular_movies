@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- grid -->
+    <integer name="num_columns">2</integer>
+
+    <!-- font sizes -->
+    <dimen name="title">32sp</dimen>
+    <dimen name="large">20sp</dimen>
+    <dimen name="regular">16sp</dimen>
+    <dimen name="blackdrop_height">300dp</dimen>
+    <dimen name="cardview_elevation">4dp</dimen>
+
+</resources>

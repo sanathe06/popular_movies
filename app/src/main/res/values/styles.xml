@@ -1,0 +1,42 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="AppTheme.Title" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">@dimen/title</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="AppTheme.Large" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">@dimen/large</item>
+    </style>
+
+    <style name="AppTheme.Large.Bold" parent="AppTheme.Large">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="AppTheme.Movie.Item.Text" parent="AppTheme.Large.Bold">
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:background">#66000000</item>
+        <item name="android:padding">@dimen/padding_normal</item>
+        <item name="android:layout_gravity">bottom</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <dimen name="padding_normal">8dp</dimen>
+</resources>
