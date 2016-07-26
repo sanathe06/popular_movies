@@ -7,16 +7,19 @@ import android.widget.TextView;
 
 import com.sanath.movies.R;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Created by sanathnandasiri on 7/15/16.
  */
 public class MovieRecyclerViewHolder extends RecyclerView.ViewHolder{
-    public final ImageView mImageViewMovie;
-    public final TextView mTextView;
+
+    @BindView(R.id.movie_grid_image_view) ImageView mImageViewMovie;
+    @BindView(R.id.movie_item_rating_textview) TextView mTextView;
 
     public MovieRecyclerViewHolder(View root) {
         super(root);
-        mImageViewMovie = (ImageView) root.findViewById(R.id.movie_grid_image_view);
-        mTextView = (TextView) root.findViewById(R.id.movie_item_rating_textview);
+        ButterKnife.bind(this,root);
     }
 }

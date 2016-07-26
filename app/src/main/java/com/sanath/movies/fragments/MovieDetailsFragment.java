@@ -17,6 +17,10 @@ import com.sanath.movies.common.Util;
 import com.sanath.movies.models.Movie;
 import com.squareup.picasso.Picasso;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 
 public class MovieDetailsFragment extends Fragment {
 
@@ -24,6 +28,12 @@ public class MovieDetailsFragment extends Fragment {
     private static final String TAG = MovieDetailsFragment.class.getSimpleName();
 
     private Movie mMovie;
+    private Unbinder mUnbinder;
+    @BindView(R.id.imageview_blackdrop) ImageView mImageViewBlackDrop;
+    @BindView(R.id.textview_title) TextView mTextViewTitle;
+    @BindView(R.id.textview_release_date) TextView mTextViewReleaseDate;
+    @BindView(R.id.textview_rating) TextView mTextViewRating;
+    @BindView(R.id.textview_overview) TextView mTextViewOverview;
 
     public MovieDetailsFragment() {
     }
@@ -31,7 +41,6 @@ public class MovieDetailsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setRetainInstance(true);
         if (getArguments().containsKey(ARG_MOVIE)) {
             mMovie = getArguments().getParcelable(ARG_MOVIE);
         }
@@ -41,24 +50,18 @@ public class MovieDetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.movie_detail_fragment, container, false);
+        mUnbinder = ButterKnife.bind(this, rootView);
         if (mMovie != null) {
             Activity activity = this.getActivity();
-
-            ImageView imageViewBlackDrop = (ImageView) rootView.findViewById(R.id.blackdrop_image_view);
-            TextView textViewTitle = (TextView) rootView.findViewById(R.id.textViewTitle);
-            TextView textViewReleaseDate = (TextView) rootView.findViewById(R.id.textViewReleaseDate);
-            TextView textViewRating = (TextView) rootView.findViewById(R.id.textViewRating);
-            TextView textViewOverview = (TextView) rootView.findViewById(R.id.textViewOverview);
-
-            textViewTitle.setText(mMovie.title);
-            textViewReleaseDate.setText(mMovie.releaseDate);
+            mTextViewTitle.setText(mMovie.title);
+            mTextViewReleaseDate.setText(mMovie.releaseDate);
             String rating = Util.getRating(mMovie.voteAverage);
             if(rating != null){
-                textViewRating.setText(String.format("%s/%s",rating,"10"));
+                mTextViewRating.setText(String.format("%s/%s",rating,"10"));
             }else{
-                textViewRating.setVisibility(View.GONE);
+                mTextViewRating.setVisibility(View.GONE);
             }
-            textViewOverview.setText(mMovie.overview);
+            mTextViewOverview.setText(mMovie.overview);
 
             Uri imageUri = Uri.parse(Api.BASE_URL_IMAGE).buildUpon()
                     .appendPath("w500")
@@ -68,11 +71,17 @@ public class MovieDetailsFragment extends Fragment {
             Picasso.with(activity)
                     .load(imageUri.toString())
                     .placeholder(R.drawable.place_holder_movie_poster)
-                    .into(imageViewBlackDrop);
+                    .into(mImageViewBlackDrop);
 
         }
 
 
         return rootView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mUnbinder.unbind();
     }
 }

@@ -27,6 +27,10 @@ import com.sanath.movies.models.Movie;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 public class MovieListFragment extends Fragment {
 
     private static final String KEY_SAVED_MOVIES = "key_saved_movies";
@@ -38,6 +42,8 @@ public class MovieListFragment extends Fragment {
 
     private OnMovieSelectListener mMovieSelectListener;
     private Snackbar mSnackbar;
+    private Unbinder mUnbinder;
+    @BindView(R.id.movie_grid) RecyclerView mRecyclerView;
 
     public MovieListFragment() {
         // Required empty public constructor
@@ -47,14 +53,19 @@ public class MovieListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.movie_list_fragment, container, false);
-
+        mUnbinder = ButterKnife.bind(this, rootView);
         int mColumnCount = getResources().getInteger(R.integer.num_columns);
         mGridLayoutManager = new GridLayoutManager(getActivity(), mColumnCount);
 
-        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.movie_grid);
-        assert recyclerView != null;
-        setupRecyclerView(recyclerView);
+        assert mRecyclerView != null;
+        setupRecyclerView(mRecyclerView);
         return rootView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mUnbinder.unbind();
     }
 
     @Override
