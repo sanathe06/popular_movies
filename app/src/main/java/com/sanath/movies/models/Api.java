@@ -1,24 +1,16 @@
 package com.sanath.movies.models;
 
-import android.net.Uri;
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.sanath.movies.BuildConfig;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import retrofit2.Call;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 
 /**
@@ -27,68 +19,39 @@ import okhttp3.Response;
 
 public class Api {
     private static final String TAG = Api.class.getSimpleName();
-    private static final String API_KEY = "api_key";
     public static final String BASE_URL_IMAGE = "http://image.tmdb.org/t/p";
-    private static final String BASE_URL_API = "https://api.themoviedb.org/3/movie/";
+    private static final String BASE_URL_API = "https://api.themoviedb.org/3/";
     private static final String popular_movies = "popular";
     private static final String top_rated_movies = "top_rated";
 
 
     public static List<Movie> getPopularMovies() {
-        Uri buildUri = Uri.parse(BASE_URL_API)
-                .buildUpon()
-                .appendPath(popular_movies)
-                .appendQueryParameter(API_KEY, BuildConfig.API_KEY)
-                .build();
-        return getMovies(buildUri.toString());
+        return getMovies(popular_movies);
     }
 
     public static List<Movie> getTopRatedMovies() {
-        Uri buildUri = Uri.parse(BASE_URL_API)
-                .buildUpon()
-                .appendPath(top_rated_movies)
-                .appendQueryParameter(API_KEY, BuildConfig.API_KEY)
-                .build();
-        return getMovies(buildUri.toString());
+        return getMovies(top_rated_movies);
     }
 
-    private static List<Movie> getMovies(String url) {
-        List<Movie> movies = new ArrayList<>();
+    private static List<Movie> getMovies(String sortBy) {
 
-        String data;
-        Response response;
+        MovieDbService service = getMovieDbService();
+        Call<Movies> call = service.listMovies(sortBy, BuildConfig.API_KEY);
         try {
-            response = get(url);
-            if (response.code() == 200) {
-                if (response.body() != null) {
-                    data = response.body().string();
-                    JSONObject  responseData = new JSONObject(data);
-                    if (responseData.has("results")) {
-                        data = responseData.get("results").toString();
-                    }else{
-                        return movies;
-                    }
-                    Gson gson = new Gson();
-                    Type collectionType = new TypeToken<Collection<Movie>>() {}.getType();
-                    Collection<Movie> movieCollection = gson.fromJson(data, collectionType);
-                    movies = (List<Movie>) movieCollection;
-                } else {
-                    Log.e(TAG, "Response body is empty");
-                }
-            } else {
-                Log.e(TAG, "Response not valid Status code " + response.code());
-            }
-        } catch (IOException | JSONException e) {
-            Log.e(TAG, e.getMessage(), e);
+            retrofit2.Response<Movies> response = call.execute();
+            Movies movies = response.body();
+            return movies.getMovies();
+        } catch (IOException e) {
+            Log.e(TAG, "error occur while query movies ", e);
         }
-        return movies;
+
+        return new ArrayList<>();
     }
 
-    private static Response get(String url) throws IOException {
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .url(url)
+    private static MovieDbService getMovieDbService() {
+        Retrofit retrofit = new Retrofit.Builder().baseUrl(BASE_URL_API)
+                .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        return client.newCall(request).execute();
+        return retrofit.create(MovieDbService.class);
     }
 }
