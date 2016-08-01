@@ -1,4 +1,5 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -35,20 +36,25 @@
                 android:layout_height="wrap_content" />
 
             <TextView
-                android:drawableStart="@drawable/ic_favorite"
                 android:id="@+id/textview_rating"
                 style="@style/AppTheme.Large.Bold"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:text="8.5/10"
-                android:gravity="center_vertical" />
+                android:drawableStart="@drawable/ic_favorite"
+                android:gravity="center_vertical"
+                tools:text="8.5/10" />
 
             <TextView
                 android:id="@+id/textview_overview"
                 style="@style/AppTheme.Large"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
-
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerview_trailers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layoutManager="LinearLayoutManager"
+                tools:listitem="@layout/trailer_list_item" />
         </LinearLayout>
 
     </LinearLayout>

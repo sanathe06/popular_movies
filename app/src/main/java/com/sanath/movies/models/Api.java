@@ -33,6 +33,19 @@ public class Api {
         return getMovies(top_rated_movies);
     }
 
+    public static List<Trailer> getTailers(String movieId) {
+        MovieDbService service = getMovieDbService();
+        Call<Trailers> call = service.listTrailers(movieId, BuildConfig.API_KEY);
+        try {
+            retrofit2.Response<Trailers> response = call.execute();
+            Trailers trailers = response.body();
+            return trailers.getTrailers();
+        } catch (IOException e) {
+            Log.e(TAG, "error occur while query trailers for movie id " + movieId, e);
+        }
+        return new ArrayList<>();
+    }
+
     private static List<Movie> getMovies(String sortBy) {
 
         MovieDbService service = getMovieDbService();
@@ -44,7 +57,6 @@ public class Api {
         } catch (IOException e) {
             Log.e(TAG, "error occur while query movies ", e);
         }
-
         return new ArrayList<>();
     }
 

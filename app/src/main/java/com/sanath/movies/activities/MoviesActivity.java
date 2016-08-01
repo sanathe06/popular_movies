@@ -2,7 +2,6 @@ package com.sanath.movies.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -11,6 +10,7 @@ import android.view.MenuItem;
 import com.sanath.movies.R;
 import com.sanath.movies.common.OnMovieSelectListener;
 import com.sanath.movies.common.Util;
+import com.sanath.movies.fragments.BaseFragment;
 import com.sanath.movies.fragments.MovieDetailsFragment;
 import com.sanath.movies.fragments.MovieListFragment;
 import com.sanath.movies.models.Movie;
@@ -20,7 +20,7 @@ public class MoviesActivity extends AppCompatActivity implements OnMovieSelectLi
     private static final String TAG_DETAILS_FRAGMENT = "TAG_DETAILS_FRAGMENT";
     private static final String TAG_MOVIE_LIST_FRAGMENT = "TAG_MOVIE_LIST_FRAGMENT";
     private boolean mTwoPane;
-    private MovieListFragment mMovieListFragment;
+    private BaseFragment mMovieListFragment;
 
 
     @Override
@@ -33,7 +33,7 @@ public class MoviesActivity extends AppCompatActivity implements OnMovieSelectLi
         toolbar.setTitle(getTitle());
         mTwoPane = findViewById(R.id.movie_detail_container) != null;
 
-        mMovieListFragment = (MovieListFragment) getSupportFragmentManager()
+        mMovieListFragment = (BaseFragment) getSupportFragmentManager()
                 .findFragmentByTag(TAG_MOVIE_LIST_FRAGMENT);
         if (mMovieListFragment == null) {
             loadMovieListFragment();
