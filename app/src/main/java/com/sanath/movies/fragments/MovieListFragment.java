@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,13 +32,13 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
 public class MovieListFragment extends BaseFragment {
+    private static final String TAG = MovieListFragment.class.getSimpleName();
 
     private static final String KEY_SAVED_MOVIES = "key_saved_movies";
 
     private GridLayoutManager mGridLayoutManager;
     private MoviesRecyclerAdapter mMoviesRecyclerAdapter;
-    private final List<Movie> mMovieList = new ArrayList<>();
-    private AsyncTask<String, Void, List<Movie>> mQueryTask;
+    private QueryMovieTask mQueryMoviesTask;
 
     private OnMovieSelectListener mMovieSelectListener;
     private Unbinder mUnBinder;
@@ -72,9 +73,7 @@ public class MovieListFragment extends BaseFragment {
         super.onViewCreated(view, savedInstanceState);
         if (savedInstanceState != null) {
             //restore saved movie list
-            mMovieList.clear();
-            mMovieList.addAll((ArrayList) savedInstanceState.getParcelableArrayList(KEY_SAVED_MOVIES));
-            mMoviesRecyclerAdapter.notifyDataSetChanged();
+            mMoviesRecyclerAdapter.add((ArrayList) savedInstanceState.getParcelableArrayList(KEY_SAVED_MOVIES));
         } else {
             // new query
             queryMovies();
@@ -95,27 +94,27 @@ public class MovieListFragment extends BaseFragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(KEY_SAVED_MOVIES, (ArrayList<? extends Parcelable>) mMovieList);
+        outState.putParcelableArrayList(KEY_SAVED_MOVIES, (ArrayList<? extends Parcelable>) mMoviesRecyclerAdapter.get());
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
         recyclerView.setHasFixedSize(true);
-        mMoviesRecyclerAdapter = new MoviesRecyclerAdapter(getActivity(), mMovieList, mMovieSelectListener);
+        mMoviesRecyclerAdapter = new MoviesRecyclerAdapter(getActivity(), new ArrayList<Movie>(), mMovieSelectListener);
         recyclerView.setLayoutManager(mGridLayoutManager);
         recyclerView.setAdapter(mMoviesRecyclerAdapter);
     }
 
     private void queryMovies() {
-        if (mQueryTask != null) {
-            if (mQueryTask.getStatus() == AsyncTask.Status.RUNNING) {
-                mQueryTask.cancel(true);
+        if (mQueryMoviesTask != null) {
+            if (mQueryMoviesTask.getStatus() == AsyncTask.Status.RUNNING) {
+                mQueryMoviesTask.cancel(true);
             }
-            mQueryTask = null;
+            mQueryMoviesTask = null;
         }
-        mQueryTask = new QueryMovieTask();
+        mQueryMoviesTask = new QueryMovieTask();
         if (Util.isOnline(getActivity())) {
             dismissSnackBar();
-            mQueryTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, getDefaultSortOrder());
+            mQueryMoviesTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, getDefaultSortOrder());
         } else {
             showSnackBar(R.string.msg_internet_connection_error, Snackbar.LENGTH_INDEFINITE, R.string.snackbar_action_retry, new View.OnClickListener() {
                 @Override
@@ -140,8 +139,6 @@ public class MovieListFragment extends BaseFragment {
             progressDialog = new ProgressDialog(getActivity());
             progressDialog.setMessage(getString(R.string.msg_please_wait));
             progressDialog.show();
-            mMovieList.clear();
-            mMoviesRecyclerAdapter.notifyDataSetChanged();
         }
 
         @Override
@@ -161,8 +158,12 @@ public class MovieListFragment extends BaseFragment {
 
         @Override
         protected void onPostExecute(List<Movie> movies) {
-            mMovieList.addAll(movies);
-            mMoviesRecyclerAdapter.notifyDataSetChanged();
+            if (movies != null) {
+                Log.i(TAG, "Movies : " + movies);
+                mMoviesRecyclerAdapter.add(movies);
+            } else {
+                mMoviesRecyclerAdapter.add(new ArrayList<Movie>());
+            }
             dismissProgressBar();
         }
 

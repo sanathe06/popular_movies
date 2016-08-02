@@ -38,6 +38,8 @@ public class MovieDetailsFragment extends BaseFragment {
 
     public static final String ARG_MOVIE = "args_movie";
     private static final String TAG = MovieDetailsFragment.class.getSimpleName();
+    public static final String KEY_TRAILERS = "trailers";
+    public static final String KEY_REVIEWS = "reviews";
 
     private Movie mMovie;
     private Unbinder mUnBinder;
@@ -122,8 +124,8 @@ public class MovieDetailsFragment extends BaseFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         if (savedInstanceState != null) {
-            mTrailersRecyclerAdapter.add(savedInstanceState.<Trailer>getParcelableArrayList("trailers"));
-            mReviewsRecyclerAdapter.add(savedInstanceState.<Review>getParcelableArrayList("reviews"));
+            mTrailersRecyclerAdapter.add(savedInstanceState.<Trailer>getParcelableArrayList(KEY_TRAILERS));
+            mReviewsRecyclerAdapter.add(savedInstanceState.<Review>getParcelableArrayList(KEY_REVIEWS));
         } else {
             loadTrailers(mMovie.id);
             loadReviews(mMovie.id);
@@ -133,8 +135,8 @@ public class MovieDetailsFragment extends BaseFragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList("trailers", mTrailersRecyclerAdapter.get());
-        outState.putParcelableArrayList("reviews", mReviewsRecyclerAdapter.get());
+        outState.putParcelableArrayList(KEY_TRAILERS, mTrailersRecyclerAdapter.get());
+        outState.putParcelableArrayList(KEY_REVIEWS, mReviewsRecyclerAdapter.get());
     }
 
 
