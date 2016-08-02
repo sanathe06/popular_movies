@@ -65,4 +65,12 @@ public class Util {
             context.startActivity(intent);
         }
     }
+
+    public static void openWebPage(Context context,String url) {
+        Uri uri = Uri.parse(url);
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        if (intent.resolveActivity(context.getPackageManager()) != null) {
+            context.startActivity(intent);
+        }
+    }
 }

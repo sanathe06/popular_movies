@@ -16,4 +16,7 @@ public interface MovieDbService {
 
     @GET("movie/{movie_id}/videos")
     Call<Trailers> listTrailers(@Path("movie_id") String movieId, @Query("api_key") String apiKey);
+
+    @GET("movie/{movie_id}/reviews")
+    Call<Reviews> listReviews(@Path("movie_id") String movieId, @Query("api_key") String apiKey);
 }

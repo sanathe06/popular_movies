@@ -46,6 +46,19 @@ public class Api {
         return new ArrayList<>();
     }
 
+    public static List<Review> getReviews(String movieId) {
+        MovieDbService service = getMovieDbService();
+        Call<Reviews> call = service.listReviews(movieId, BuildConfig.API_KEY);
+        try {
+            retrofit2.Response<Reviews> response = call.execute();
+            Reviews reviews = response.body();
+            return reviews.getReviews();
+        } catch (IOException e) {
+            Log.e(TAG, "error occur while query reviews for movie id " + movieId, e);
+        }
+        return new ArrayList<>();
+    }
+
     private static List<Movie> getMovies(String sortBy) {
 
         MovieDbService service = getMovieDbService();

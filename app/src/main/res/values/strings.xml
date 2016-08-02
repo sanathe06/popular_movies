@@ -13,4 +13,6 @@
     <string name="content_description_poster">Movie poster</string>
     <string name="title_poplar_movies">Popular Movies</string>
     <string name="title_movies_top_rated">Top Rated Movies</string>
+    <string name="trailers">Trailers</string>
+    <string name="reviews">Reviews</string>
 </resources>

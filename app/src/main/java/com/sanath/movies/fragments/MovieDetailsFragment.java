@@ -13,13 +13,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.sanath.movies.adapters.ReviewsRecyclerAdapter;
 import com.sanath.movies.adapters.TrailersRecyclerAdapter;
 import com.sanath.movies.models.Api;
 import com.sanath.movies.R;
 import com.sanath.movies.common.Util;
 import com.sanath.movies.models.Movie;
+import com.sanath.movies.models.Review;
 import com.sanath.movies.models.Trailer;
 import com.squareup.picasso.Picasso;
 
@@ -33,11 +36,11 @@ import butterknife.Unbinder;
 
 public class MovieDetailsFragment extends BaseFragment {
 
-    public static final String ARG_MOVIE = "item_id";
+    public static final String ARG_MOVIE = "args_movie";
     private static final String TAG = MovieDetailsFragment.class.getSimpleName();
 
     private Movie mMovie;
-    private Unbinder mUnbinder;
+    private Unbinder mUnBinder;
     @BindView(R.id.imageview_blackdrop)
     ImageView mImageViewBlackDrop;
     @BindView(R.id.textview_title)
@@ -50,9 +53,17 @@ public class MovieDetailsFragment extends BaseFragment {
     TextView mTextViewOverview;
     @BindView(R.id.recyclerview_trailers)
     RecyclerView mRecyclerViewTrailers;
+    @BindView(R.id.recyclerview_reviews)
+    RecyclerView mRecyclerViewReviews;
+    @BindView(R.id.progressbar_trailers)
+    ProgressBar mProgressBarTrailers;
+    @BindView(R.id.progressbar_reviews)
+    ProgressBar mProgressBarReviews;
 
     private TrailersRecyclerAdapter mTrailersRecyclerAdapter;
-    private AsyncTask<String, Void, List<Trailer>> mQueryTrailersTask;
+    private QueryTrailersTask mQueryTrailersTask;
+    private ReviewsRecyclerAdapter mReviewsRecyclerAdapter;
+    private QueryReviewsTask mQueryReviewsTask;
 
     public MovieDetailsFragment() {
     }
@@ -69,7 +80,7 @@ public class MovieDetailsFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.movie_detail_fragment, container, false);
-        mUnbinder = ButterKnife.bind(this, rootView);
+        mUnBinder = ButterKnife.bind(this, rootView);
         if (mMovie != null) {
             Activity activity = this.getActivity();
             mTextViewTitle.setText(mMovie.title);
@@ -99,7 +110,11 @@ public class MovieDetailsFragment extends BaseFragment {
         mRecyclerViewTrailers.setLayoutManager(layoutManager);
         mRecyclerViewTrailers.setAdapter(mTrailersRecyclerAdapter);
 
-
+        mReviewsRecyclerAdapter = new ReviewsRecyclerAdapter(getActivity(), new ArrayList<Review>());
+        LinearLayoutManager layoutManager2
+                = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+        mRecyclerViewReviews.setLayoutManager(layoutManager2);
+        mRecyclerViewReviews.setAdapter(mReviewsRecyclerAdapter);
         return rootView;
     }
 
@@ -108,8 +123,10 @@ public class MovieDetailsFragment extends BaseFragment {
         super.onViewCreated(view, savedInstanceState);
         if (savedInstanceState != null) {
             mTrailersRecyclerAdapter.add(savedInstanceState.<Trailer>getParcelableArrayList("trailers"));
+            mReviewsRecyclerAdapter.add(savedInstanceState.<Review>getParcelableArrayList("reviews"));
         } else {
             loadTrailers(mMovie.id);
+            loadReviews(mMovie.id);
         }
     }
 
@@ -117,6 +134,29 @@ public class MovieDetailsFragment extends BaseFragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList("trailers", mTrailersRecyclerAdapter.get());
+        outState.putParcelableArrayList("reviews", mReviewsRecyclerAdapter.get());
+    }
+
+
+    private void loadReviews(final String movieId) {
+        if (mQueryReviewsTask != null) {
+            if (mQueryReviewsTask.getStatus() == AsyncTask.Status.RUNNING) {
+                mQueryReviewsTask.cancel(true);
+            }
+            mQueryReviewsTask = null;
+        }
+        mQueryReviewsTask = new QueryReviewsTask();
+        if (Util.isOnline(getActivity())) {
+            dismissSnackBar();
+            mQueryReviewsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, movieId);
+        } else {
+            showSnackBar(R.string.msg_internet_connection_error, Snackbar.LENGTH_INDEFINITE, R.string.snackbar_action_retry, new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    loadTrailers(movieId);
+                }
+            });
+        }
     }
 
     private void loadTrailers(final String movieId) {
@@ -143,7 +183,7 @@ public class MovieDetailsFragment extends BaseFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        mUnbinder.unbind();
+        mUnBinder.unbind();
     }
 
     private class QueryTrailersTask extends AsyncTask<String, Void, List<Trailer>> {
@@ -151,6 +191,7 @@ public class MovieDetailsFragment extends BaseFragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            mProgressBarTrailers.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -163,10 +204,40 @@ public class MovieDetailsFragment extends BaseFragment {
         @Override
         protected void onPostExecute(List<Trailer> trailers) {
             super.onPostExecute(trailers);
+            mProgressBarTrailers.setVisibility(View.GONE);
             if (trailers != null) {
+                Log.i(TAG, "Trailers : " + trailers);
                 mTrailersRecyclerAdapter.add((ArrayList<Trailer>) trailers);
             } else {
                 mTrailersRecyclerAdapter.add(new ArrayList<Trailer>());
+            }
+        }
+    }
+
+    private class QueryReviewsTask extends AsyncTask<String, Void, List<Review>> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mProgressBarReviews.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected List<Review> doInBackground(String... strings) {
+            String movieId = strings[0];
+            if (movieId == null) return null;
+            return Api.getReviews(movieId);
+        }
+
+        @Override
+        protected void onPostExecute(List<Review> reviews) {
+            super.onPostExecute(reviews);
+            mProgressBarReviews.setVisibility(View.GONE);
+            if (reviews != null) {
+                Log.i(TAG, "Reviews : " + reviews);
+                mReviewsRecyclerAdapter.add((ArrayList<Review>) reviews);
+            } else {
+                mReviewsRecyclerAdapter.add(new ArrayList<Review>());
             }
         }
     }
