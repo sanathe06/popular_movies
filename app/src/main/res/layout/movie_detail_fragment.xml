@@ -49,12 +49,20 @@
                 style="@style/AppTheme.Large"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
+
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recyclerview_trailers"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layoutManager="LinearLayoutManager"
                 tools:listitem="@layout/trailer_list_item" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerview_reviews"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layoutManager="LinearLayoutManager"
+                tools:listitem="@layout/reviews_list_item" />
         </LinearLayout>
 
     </LinearLayout>
