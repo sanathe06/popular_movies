@@ -1,5 +1,6 @@
 package com.sanath.movies.models;
 
+import android.content.ContentValues;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -7,7 +8,6 @@ import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by sanathnandasiri on 7/14/16.
- *
  */
 
 public class Movie implements Parcelable {
@@ -34,6 +34,29 @@ public class Movie implements Parcelable {
     @SerializedName("vote_average")
     public String voteAverage;
 
+    public boolean isFavorite;
+
+
+    public Movie() {
+    }
+
+    @Override
+    public String toString() {
+        return "Movie{" +
+                "id='" + id + '\'' +
+                ", title='" + title + '\'' +
+                ", originalTitle='" + originalTitle + '\'' +
+                ", originalLanguage='" + originalLanguage + '\'' +
+                ", releaseDate='" + releaseDate + '\'' +
+                ", overview='" + overview + '\'' +
+                ", posterPath='" + posterPath + '\'' +
+                ", backdropPath='" + backdropPath + '\'' +
+                ", popularity='" + popularity + '\'' +
+                ", voteCount='" + voteCount + '\'' +
+                ", voteAverage='" + voteAverage + '\'' +
+                ", isFavorite=" + isFavorite +
+                '}';
+    }
 
     @Override
     public int describeContents() {
@@ -53,9 +76,7 @@ public class Movie implements Parcelable {
         dest.writeString(this.popularity);
         dest.writeString(this.voteCount);
         dest.writeString(this.voteAverage);
-    }
-
-    public Movie() {
+        dest.writeByte(this.isFavorite ? (byte) 1 : (byte) 0);
     }
 
     protected Movie(Parcel in) {
@@ -70,9 +91,10 @@ public class Movie implements Parcelable {
         this.popularity = in.readString();
         this.voteCount = in.readString();
         this.voteAverage = in.readString();
+        this.isFavorite = in.readByte() != 0;
     }
 
-    public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
+    public static final Creator<Movie> CREATOR = new Creator<Movie>() {
         @Override
         public Movie createFromParcel(Parcel source) {
             return new Movie(source);
@@ -83,21 +105,4 @@ public class Movie implements Parcelable {
             return new Movie[size];
         }
     };
-
-    @Override
-    public String toString() {
-        return "Movie{" +
-                "id='" + id + '\'' +
-                ", title='" + title + '\'' +
-                ", originalTitle='" + originalTitle + '\'' +
-                ", originalLanguage='" + originalLanguage + '\'' +
-                ", releaseDate='" + releaseDate + '\'' +
-                ", overview='" + overview + '\'' +
-                ", posterPath='" + posterPath + '\'' +
-                ", backdropPath='" + backdropPath + '\'' +
-                ", popularity='" + popularity + '\'' +
-                ", voteCount='" + voteCount + '\'' +
-                ", voteAverage='" + voteAverage + '\'' +
-                '}';
-    }
 }

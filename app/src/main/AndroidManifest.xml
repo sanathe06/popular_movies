@@ -37,6 +37,12 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MoviesActivity" />
         </activity>
+
+        <provider
+            android:name=".data.MoviesProvider"
+            android:authorities="com.sanath.movies"
+            android:enabled="true"
+            android:exported="true"></provider>
     </application>
 
 </manifest>

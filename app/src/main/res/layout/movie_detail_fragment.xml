@@ -16,6 +16,19 @@
             android:layout_height="@dimen/blackdrop_height"
             android:contentDescription="@string/content_description_blackdrop"
             android:scaleType="centerCrop" />
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fabFavorite"
+            app:layout_anchor="@id/imageview_blackdrop"
+            app:layout_anchorGravity="bottom|right|end"
+            android:layout_gravity="end"
+            android:layout_marginTop="-20dp"
+            android:layout_marginEnd="16dp"
+            app:srcCompat="@drawable/ic_heart_outline"
+            android:clickable="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fabSize="mini"
+            app:elevation="10dp" />
 
         <LinearLayout
             android:layout_width="match_parent"

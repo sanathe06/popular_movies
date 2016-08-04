@@ -15,4 +15,7 @@
     <string name="title_movies_top_rated">Top Rated Movies</string>
     <string name="trailers">Trailers</string>
     <string name="reviews">Reviews</string>
+    <string name="share">Share</string>
+    <string name="msg_no_trailers_to_share">No trailer details to share</string>
+    <string name="title_share">Share Trailer</string>
 </resources>
