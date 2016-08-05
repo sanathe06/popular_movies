@@ -40,7 +40,7 @@ public class Util {
 
     public static String getDefaultSortOrder(Context context) {
         SharedPreferences sharedPreferences = getDefaultSharedPreferences(context);
-        return sharedPreferences.getString("pref_key_default_sort_order", context.getString(R.string.pref_val_popular));
+        return sharedPreferences.getString("pref_key_default_sort_order", "popular");
 
     }
 

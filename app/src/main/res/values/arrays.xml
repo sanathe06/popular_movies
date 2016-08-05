@@ -3,10 +3,12 @@
     <string-array name="sortOrders">
         <item name="1">@string/pref_val_popular</item>
         <item name="2">@string/pref_val_top_rated</item>
+        <item name="2">@string/pref_val_favorite</item>
     </string-array>
     <string-array name="sortOrdersValues">
         <item name="1">popular</item>
         <item name="2">top_rated</item>
+        <item name="3">favorite</item>
     </string-array>
     <string-array name="spinner_list_item_array">
         <item name="1">@string/popular</item>

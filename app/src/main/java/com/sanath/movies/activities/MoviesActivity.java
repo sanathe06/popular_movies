@@ -23,35 +23,45 @@ public class MoviesActivity extends AppCompatActivity implements OnMovieSelectLi
 
     private static final String TAG_DETAILS_FRAGMENT = "TAG_DETAILS_FRAGMENT";
     private static final String TAG_MOVIE_LIST_FRAGMENT = "TAG_MOVIE_LIST_FRAGMENT";
+    private static final String KEY_SPINNER_SELECTED_POSITION = "KEY_SPINNER_SELECTED_POSITION";
     private boolean mTwoPane;
     private BaseFragment mMovieListFragment;
-    Spinner mNavigationSpinner;
+    private Spinner mNavigationSpinner;
+    private int mNavigationSpinnerSelectedPosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movies);
-
+        mNavigationSpinner = (Spinner) findViewById(R.id.spinner_movies);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
+        if (savedInstanceState != null) {
+            mNavigationSpinnerSelectedPosition = savedInstanceState.getInt(KEY_SPINNER_SELECTED_POSITION);
+        } else {
+            //load default mNavigationSpinnerSelectedPosition
+            mNavigationSpinnerSelectedPosition = getDefaultSortOrderPosition();
+            loadMovieListFragment(mNavigationSpinnerSelectedPosition);
+        }
         setupNavigationSpinner();
+
+        setNavigationSpinnerSelection(mNavigationSpinnerSelectedPosition);
 
         mTwoPane = findViewById(R.id.movie_detail_container) != null;
     }
 
-    private void setupNavigationSpinner() {
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.spinner_list_item_array, R.layout.spinner_title_item);
-        adapter.setDropDownViewResource(R.layout.spinner_drop_item);
-
-        mNavigationSpinner = (Spinner) findViewById(R.id.spinner_movies);
-        mNavigationSpinner.setAdapter(adapter);
+    private void setNavigationSpinnerSelection(final int selectedPosition) {
+        mNavigationSpinner.setOnItemSelectedListener(null);
+        mNavigationSpinner.setSelection(selectedPosition);
         mNavigationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
-                loadMovieListFragment(position);
+                if (mNavigationSpinnerSelectedPosition != position) {
+                    loadMovieListFragment(position);
+                }
+                mNavigationSpinnerSelectedPosition = position;
             }
 
             @Override
@@ -59,6 +69,13 @@ public class MoviesActivity extends AppCompatActivity implements OnMovieSelectLi
 
             }
         });
+    }
+
+    private void setupNavigationSpinner() {
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.spinner_list_item_array, R.layout.spinner_title_item);
+        adapter.setDropDownViewResource(R.layout.spinner_drop_item);
+        mNavigationSpinner.setAdapter(adapter);
     }
 
     private void loadMovieListFragment(int selectedIndex) {
@@ -72,8 +89,21 @@ public class MoviesActivity extends AppCompatActivity implements OnMovieSelectLi
     protected void onResume() {
         super.onResume();
         if (Util.isPreferencesChanged(this)) {
-            // TODO: 8/5/2016 have to load spinner for default sort order
+            mNavigationSpinnerSelectedPosition = getDefaultSortOrderPosition();
+            setNavigationSpinnerSelection(mNavigationSpinnerSelectedPosition);
+            loadMovieListFragment(mNavigationSpinnerSelectedPosition);
             Util.setPreferencesChange(this, false);
+        }
+    }
+
+    private int getDefaultSortOrderPosition() {
+        String defaultSortOrder = Util.getDefaultSortOrder(this);
+        if (defaultSortOrder.equals("popular")) {
+            return 0;
+        } else if (defaultSortOrder.equals("top_rated")) {
+            return 1;
+        } else {
+            return 2;
         }
     }
 
@@ -97,6 +127,12 @@ public class MoviesActivity extends AppCompatActivity implements OnMovieSelectLi
                 .replace(R.id.movie_detail_container, fragment, TAG_DETAILS_FRAGMENT)
                 .commit();
 
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(KEY_SPINNER_SELECTED_POSITION, mNavigationSpinnerSelectedPosition);
     }
 
     @Override
