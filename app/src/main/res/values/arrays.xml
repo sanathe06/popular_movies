@@ -8,4 +8,9 @@
         <item name="1">popular</item>
         <item name="2">top_rated</item>
     </string-array>
+    <string-array name="spinner_list_item_array">
+        <item name="1">@string/popular</item>
+        <item name="2">@string/top_rated</item>
+        <item name="3">@string/favorite</item>
+    </string-array>
 </resources>

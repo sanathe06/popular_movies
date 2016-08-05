@@ -6,6 +6,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 
 import com.sanath.movies.R;
 import com.sanath.movies.common.OnMovieSelectListener;
@@ -21,7 +25,7 @@ public class MoviesActivity extends AppCompatActivity implements OnMovieSelectLi
     private static final String TAG_MOVIE_LIST_FRAGMENT = "TAG_MOVIE_LIST_FRAGMENT";
     private boolean mTwoPane;
     private BaseFragment mMovieListFragment;
-
+    Spinner mNavigationSpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,18 +34,35 @@ public class MoviesActivity extends AppCompatActivity implements OnMovieSelectLi
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitle(getTitle());
-        mTwoPane = findViewById(R.id.movie_detail_container) != null;
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        mMovieListFragment = (BaseFragment) getSupportFragmentManager()
-                .findFragmentByTag(TAG_MOVIE_LIST_FRAGMENT);
-        if (mMovieListFragment == null) {
-            loadMovieListFragment();
-        }
+        setupNavigationSpinner();
+
+        mTwoPane = findViewById(R.id.movie_detail_container) != null;
     }
 
-    private void loadMovieListFragment() {
-        mMovieListFragment = new MovieListFragment();
+    private void setupNavigationSpinner() {
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.spinner_list_item_array, R.layout.spinner_title_item);
+        adapter.setDropDownViewResource(R.layout.spinner_drop_item);
+
+        mNavigationSpinner = (Spinner) findViewById(R.id.spinner_movies);
+        mNavigationSpinner.setAdapter(adapter);
+        mNavigationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+                loadMovieListFragment(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+    }
+
+    private void loadMovieListFragment(int selectedIndex) {
+        mMovieListFragment = MovieListFragment.newInstance(selectedIndex);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.movie_list_container, mMovieListFragment, TAG_MOVIE_LIST_FRAGMENT)
                 .commit();
@@ -51,17 +72,8 @@ public class MoviesActivity extends AppCompatActivity implements OnMovieSelectLi
     protected void onResume() {
         super.onResume();
         if (Util.isPreferencesChanged(this)) {
-            loadMovieListFragment();
-            Util.setPreferencesChange(this,false);
-        }
-        setTitle(getTitle((Util.getDefaultSortOrder(this))));
-    }
-
-    private CharSequence getTitle(String sortOrder) {
-        if(sortOrder.equals("popular")){
-            return getString(R.string.title_poplar_movies);
-        }else{
-            return getString(R.string.title_movies_top_rated);
+            // TODO: 8/5/2016 have to load spinner for default sort order
+            Util.setPreferencesChange(this, false);
         }
     }
 

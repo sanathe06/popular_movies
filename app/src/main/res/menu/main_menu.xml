@@ -5,5 +5,4 @@
         android:id="@+id/ic_action_setting"
         android:title="@string/settings"
         app:showAsAction="never" />
-
 </menu>

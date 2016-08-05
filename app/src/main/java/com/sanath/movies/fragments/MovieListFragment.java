@@ -44,9 +44,18 @@ public class MovieListFragment extends BaseFragment {
     private Unbinder mUnBinder;
     @BindView(R.id.movie_grid)
     RecyclerView mRecyclerView;
+    private int selectedIndex = 0;
 
     public MovieListFragment() {
         // Required empty public constructor
+    }
+
+    public static MovieListFragment newInstance(int selectedIndex) {
+        MovieListFragment fragment = new MovieListFragment();
+        Bundle bundle = new Bundle();
+        bundle.putInt("selectedIndex", selectedIndex);
+        fragment.setArguments(bundle);
+        return fragment;
     }
 
     @Override
@@ -71,9 +80,11 @@ public class MovieListFragment extends BaseFragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        selectedIndex = getArguments().getInt("selectedIndex");
         if (savedInstanceState != null) {
             //restore saved movie list
             mMoviesRecyclerAdapter.add((ArrayList) savedInstanceState.getParcelableArrayList(KEY_SAVED_MOVIES));
+            selectedIndex = savedInstanceState.getInt("selectedIndex");
         } else {
             // new query
             queryMovies();
@@ -95,6 +106,7 @@ public class MovieListFragment extends BaseFragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(KEY_SAVED_MOVIES, (ArrayList<? extends Parcelable>) mMoviesRecyclerAdapter.get());
+        outState.putInt("selectedIndex", selectedIndex);
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
@@ -143,10 +155,12 @@ public class MovieListFragment extends BaseFragment {
 
         @Override
         protected List<Movie> doInBackground(String... params) {
-            if (params[0].equals("popular")) {
+            if (selectedIndex == 0) {
                 return Api.getPopularMovies();
-            } else {
+            } else if (selectedIndex == 1) {
                 return Api.getTopRatedMovies();
+            } else {
+                return loadFavorite();
             }
         }
 
@@ -175,6 +189,10 @@ public class MovieListFragment extends BaseFragment {
                 progressDialog = null;
             }
         }
+    }
+
+    private List<Movie> loadFavorite() {
+        return null;
     }
 
 }
