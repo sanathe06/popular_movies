@@ -1,8 +1,8 @@
 # Popular Movies
 Udacity Nano Degree
 
-## This is stage 1
-This project include code for stage 1
+## This is stage 2 
+This project include code for stage 1 and stage 2
 
 ## Using themoviedb.org API key
 
