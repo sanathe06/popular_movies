@@ -14,9 +14,9 @@ This project include code for stage 1
 	
 ## Screen shots
 ### Phone
-![Phone Movie List](https://github.com/sanathe06/popular_movies/commits/master/screenshots/phone_movie_list.png)
+![Phone Movie List](https://github.com/sanathe06/popular_movies/raw/master/screenshots/phone_movie_list.png)
 
-![Phone Movie Details](https://github.com/sanathe06/popular_movies/commits/master/screenshots/phone_movie_details.png)
+![Phone Movie Details](https://github.com/sanathe06/popular_movies/raw/master/screenshots/phone_movie_details.png)
 
 ### Tab
-![Tab Movie List](https://github.com/sanathe06/popular_movies/commits/master/screenshots/tab_land_movie_list.png)
+![Tab Movie List](https://github.com/sanathe06/popular_movies/raw/master/screenshots/tab_land_movie_list.png)
