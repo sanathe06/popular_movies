@@ -3,6 +3,7 @@ package com.sanath.movies.fragments;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -21,6 +22,7 @@ import com.sanath.movies.activities.MoviesActivity;
 import com.sanath.movies.adapters.MoviesRecyclerAdapter;
 import com.sanath.movies.common.OnMovieSelectListener;
 import com.sanath.movies.common.Util;
+import com.sanath.movies.data.MovieContract;
 import com.sanath.movies.models.Api;
 import com.sanath.movies.models.Movie;
 
@@ -34,7 +36,8 @@ import butterknife.Unbinder;
 public class MovieListFragment extends BaseFragment {
     private static final String TAG = MovieListFragment.class.getSimpleName();
 
-    private static final String KEY_SAVED_MOVIES = "key_saved_movies";
+    private static final String KEY_SAVED_MOVIES = "KEY_SAVED_MOVIES";
+    public static final String KEY_SELECTED_INDEX = "KEY_SELECTED_INDEX";
 
     private GridLayoutManager mGridLayoutManager;
     private MoviesRecyclerAdapter mMoviesRecyclerAdapter;
@@ -44,7 +47,7 @@ public class MovieListFragment extends BaseFragment {
     private Unbinder mUnBinder;
     @BindView(R.id.movie_grid)
     RecyclerView mRecyclerView;
-    private int selectedIndex = 0;
+    private int mSelectedIndex = 0;
 
     public MovieListFragment() {
         // Required empty public constructor
@@ -53,7 +56,7 @@ public class MovieListFragment extends BaseFragment {
     public static MovieListFragment newInstance(int selectedIndex) {
         MovieListFragment fragment = new MovieListFragment();
         Bundle bundle = new Bundle();
-        bundle.putInt("selectedIndex", selectedIndex);
+        bundle.putInt(KEY_SELECTED_INDEX, selectedIndex);
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -75,16 +78,17 @@ public class MovieListFragment extends BaseFragment {
     public void onDestroyView() {
         super.onDestroyView();
         mUnBinder.unbind();
+        dismissSnackBar();
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        selectedIndex = getArguments().getInt("selectedIndex");
+        mSelectedIndex = getArguments().getInt(KEY_SELECTED_INDEX);
         if (savedInstanceState != null) {
             //restore saved movie list
             mMoviesRecyclerAdapter.add((ArrayList) savedInstanceState.getParcelableArrayList(KEY_SAVED_MOVIES));
-            selectedIndex = savedInstanceState.getInt("selectedIndex");
+            mSelectedIndex = savedInstanceState.getInt(KEY_SELECTED_INDEX);
         } else {
             // new query
             queryMovies();
@@ -106,7 +110,7 @@ public class MovieListFragment extends BaseFragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(KEY_SAVED_MOVIES, (ArrayList<? extends Parcelable>) mMoviesRecyclerAdapter.get());
-        outState.putInt("selectedIndex", selectedIndex);
+        outState.putInt(KEY_SELECTED_INDEX, mSelectedIndex);
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
@@ -124,24 +128,28 @@ public class MovieListFragment extends BaseFragment {
             mQueryMoviesTask = null;
         }
         mQueryMoviesTask = new QueryMovieTask();
-        if (Util.isOnline(getActivity())) {
-            dismissSnackBar();
-            mQueryMoviesTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, getDefaultSortOrder());
-        } else {
-            showSnackBar(R.string.msg_internet_connection_error, Snackbar.LENGTH_INDEFINITE, R.string.snackbar_action_retry, new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    queryMovies();
-                }
-            });
+        if (mSelectedIndex != 2) {
+            if (Util.isOnline(getActivity())) {
+                execute();
+            } else {
+                showSnackBar(R.string.msg_internet_connection_error, Snackbar.LENGTH_INDEFINITE, R.string.snackbar_action_retry, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        queryMovies();
+                    }
+                });
+            }
+        }else{
+            execute();
         }
     }
 
-    private String getDefaultSortOrder() {
-        return Util.getDefaultSortOrder(getActivity());
+    private void execute() {
+        dismissSnackBar();
+        mQueryMoviesTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mSelectedIndex);
     }
 
-    private class QueryMovieTask extends AsyncTask<String, Void, List<Movie>> {
+    private class QueryMovieTask extends AsyncTask<Integer, Void, List<Movie>> {
 
         ProgressDialog progressDialog;
 
@@ -154,7 +162,8 @@ public class MovieListFragment extends BaseFragment {
         }
 
         @Override
-        protected List<Movie> doInBackground(String... params) {
+        protected List<Movie> doInBackground(Integer... params) {
+            int selectedIndex = params[0];
             if (selectedIndex == 0) {
                 return Api.getPopularMovies();
             } else if (selectedIndex == 1) {
@@ -192,7 +201,24 @@ public class MovieListFragment extends BaseFragment {
     }
 
     private List<Movie> loadFavorite() {
-        return null;
+        ArrayList<Movie> movies = new ArrayList<>();
+        Cursor cursor = getContext().getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE + " DESC");
+
+        if (cursor != null && cursor.moveToFirst()) {
+            Movie movie;
+            while (cursor.moveToNext()) {
+                movie = MovieContract.MovieEntry.getMovieFromCursor(cursor);
+                movies.add(movie);
+            }
+        }
+        if (cursor != null) {
+            cursor.close();
+        }
+        return movies;
     }
 
 }

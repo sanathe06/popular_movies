@@ -3,6 +3,7 @@ package com.sanath.movies.data;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -70,6 +71,18 @@ public class MovieContract {
             contentValues.put(COLUMN_BACKDROP_PATH, movie.backdropPath);
             contentValues.put(COLUMN_VOTE_AVERAGE, movie.voteAverage);
             return contentValues;
+        }
+
+        public static Movie getMovieFromCursor(Cursor cursor) {
+            Movie movie = new Movie();
+            movie.id = String.valueOf(cursor.getInt(cursor.getColumnIndex(_ID)));
+            movie.title = cursor.getString(cursor.getColumnIndex(COLUMN_TITLE));
+            movie.releaseDate = cursor.getString(cursor.getColumnIndex(COLUMN_RELEASE_DATE));
+            movie.overview = cursor.getString(cursor.getColumnIndex(COLUMN_OVERVIEW));
+            movie.posterPath = cursor.getString(cursor.getColumnIndex(COLUMN_POSTER_PATH));
+            movie.backdropPath = cursor.getString(cursor.getColumnIndex(COLUMN_BACKDROP_PATH));
+            movie.voteAverage = cursor.getString(cursor.getColumnIndex(COLUMN_VOTE_AVERAGE));
+            return movie;
         }
     }
 }

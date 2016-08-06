@@ -50,9 +50,9 @@ import butterknife.Unbinder;
 public class MovieDetailsFragment extends BaseFragment {
     private static final String TAG = MovieDetailsFragment.class.getSimpleName();
 
-    public static final String ARG_MOVIE = "args_movie";
-    public static final String KEY_TRAILERS = "trailers";
-    public static final String KEY_REVIEWS = "reviews";
+    public static final String ARG_MOVIE = "ARGS_MOVIE";
+    public static final String KEY_TRAILERS = "KEY_TRAILERS";
+    public static final String KEY_REVIEWS = "KEY_REVIEWS";
 
     private Movie mMovie;
     private Unbinder mUnBinder;
@@ -260,7 +260,8 @@ public class MovieDetailsFragment extends BaseFragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            mProgressBarTrailers.setVisibility(View.VISIBLE);
+            if (mProgressBarTrailers != null)
+                mProgressBarTrailers.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -273,7 +274,8 @@ public class MovieDetailsFragment extends BaseFragment {
         @Override
         protected void onPostExecute(List<Trailer> trailers) {
             super.onPostExecute(trailers);
-            mProgressBarTrailers.setVisibility(View.GONE);
+            if (mProgressBarTrailers != null)
+                mProgressBarTrailers.setVisibility(View.GONE);
             if (trailers != null) {
                 Log.i(TAG, "Trailers : " + trailers);
                 mTrailersRecyclerAdapter.add((ArrayList<Trailer>) trailers);
@@ -289,7 +291,8 @@ public class MovieDetailsFragment extends BaseFragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            mProgressBarReviews.setVisibility(View.VISIBLE);
+            if (mProgressBarReviews != null)
+                mProgressBarReviews.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -302,7 +305,8 @@ public class MovieDetailsFragment extends BaseFragment {
         @Override
         protected void onPostExecute(List<Review> reviews) {
             super.onPostExecute(reviews);
-            mProgressBarReviews.setVisibility(View.GONE);
+            if (mProgressBarReviews != null)
+                mProgressBarReviews.setVisibility(View.GONE);
             if (reviews != null) {
                 Log.i(TAG, "Reviews : " + reviews);
                 mReviewsRecyclerAdapter.add((ArrayList<Review>) reviews);
@@ -357,6 +361,7 @@ public class MovieDetailsFragment extends BaseFragment {
                         null
                 );
                 if (cursor != null && cursor.moveToFirst()) {
+                    cursor.close();
                     return true;
                 }
                 return false;

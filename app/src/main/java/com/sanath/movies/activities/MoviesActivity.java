@@ -2,6 +2,7 @@ package com.sanath.movies.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -19,20 +20,28 @@ import com.sanath.movies.fragments.MovieDetailsFragment;
 import com.sanath.movies.fragments.MovieListFragment;
 import com.sanath.movies.models.Movie;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 public class MoviesActivity extends AppCompatActivity implements OnMovieSelectListener {
 
     private static final String TAG_DETAILS_FRAGMENT = "TAG_DETAILS_FRAGMENT";
     private static final String TAG_MOVIE_LIST_FRAGMENT = "TAG_MOVIE_LIST_FRAGMENT";
     private static final String KEY_SPINNER_SELECTED_POSITION = "KEY_SPINNER_SELECTED_POSITION";
+
+    @BindView(R.id.spinner_movies)
+    Spinner mNavigationSpinner;
+
     private boolean mTwoPane;
-    private BaseFragment mMovieListFragment;
-    private Spinner mNavigationSpinner;
     private int mNavigationSpinnerSelectedPosition = 0;
+    private Unbinder mUnBinder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movies);
+        mUnBinder = ButterKnife.bind(this);
         mNavigationSpinner = (Spinner) findViewById(R.id.spinner_movies);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -60,6 +69,7 @@ public class MoviesActivity extends AppCompatActivity implements OnMovieSelectLi
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
                 if (mNavigationSpinnerSelectedPosition != position) {
                     loadMovieListFragment(position);
+                    showMovieDetail(null);
                 }
                 mNavigationSpinnerSelectedPosition = position;
             }
@@ -79,7 +89,7 @@ public class MoviesActivity extends AppCompatActivity implements OnMovieSelectLi
     }
 
     private void loadMovieListFragment(int selectedIndex) {
-        mMovieListFragment = MovieListFragment.newInstance(selectedIndex);
+        BaseFragment mMovieListFragment = MovieListFragment.newInstance(selectedIndex);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.movie_list_container, mMovieListFragment, TAG_MOVIE_LIST_FRAGMENT)
                 .commit();
@@ -119,6 +129,13 @@ public class MoviesActivity extends AppCompatActivity implements OnMovieSelectLi
     }
 
     private void showMovieDetail(Movie movie) {
+        if (movie == null) {
+            Fragment fragment = getSupportFragmentManager().findFragmentByTag(TAG_DETAILS_FRAGMENT);
+            if (fragment != null) {
+                getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+            }
+            return;
+        }
         Bundle arguments = new Bundle();
         arguments.putParcelable(MovieDetailsFragment.ARG_MOVIE, movie);
         MovieDetailsFragment fragment = new MovieDetailsFragment();
@@ -151,5 +168,11 @@ public class MoviesActivity extends AppCompatActivity implements OnMovieSelectLi
 
     private void startSettingActivity() {
         startActivity(new Intent(this, SettingActivity.class));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mUnBinder.unbind();
     }
 }

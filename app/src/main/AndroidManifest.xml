@@ -41,8 +41,7 @@
         <provider
             android:name=".data.MoviesProvider"
             android:authorities="com.sanath.movies"
-            android:enabled="true"
-            android:exported="true"></provider>
+            android:enabled="true"></provider>
     </application>
 
 </manifest>
